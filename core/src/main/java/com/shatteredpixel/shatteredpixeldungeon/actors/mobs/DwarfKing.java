@@ -271,7 +271,7 @@ public class DwarfKing extends Mob {
 		if (furthest != null) {
 			Buff.append(furthest, LifeLink.class, 100f).object = id();
 			Buff.append(this, LifeLink.class, 100f).object = furthest.id();
-			yell(Messages.get(this, "lifelink_" + Random.IntRange(1, 2)));
+			yell(Messages.get(this, "lifelink_" + Random.IntRange(1, 2), Dungeon.hero.name()));
 			sprite.parent.add(new Beam.HealthRay(sprite.destinationCenter(), furthest.sprite.destinationCenter()));
 			return true;
 
