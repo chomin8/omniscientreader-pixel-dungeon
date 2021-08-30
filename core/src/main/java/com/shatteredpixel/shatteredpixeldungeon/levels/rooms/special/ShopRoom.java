@@ -223,10 +223,10 @@ public class ShopRoom extends SpecialRoom {
 				itemsToSpawn.add( new Honeypot() );
 				break;
 		}
-
-		itemsToSpawn.add( new Ankh() );
-		itemsToSpawn.add( new StoneOfAugmentation() );
-
+		if (Dungeon.depth == 6 || Dungeon.depth == 11 || Dungeon.depth == 16) {
+			itemsToSpawn.add(new Ankh());
+			itemsToSpawn.add(new StoneOfAugmentation());
+		}
 		TimekeepersHourglass hourglass = Dungeon.hero.belongings.getItem(TimekeepersHourglass.class);
 		if (hourglass != null && hourglass.isIdentified() && !hourglass.cursed){
 			int bags = 0;
@@ -250,24 +250,26 @@ public class ShopRoom extends SpecialRoom {
 		}
 
 		Item rare;
-		switch (Random.Int(10)){
-			case 0:
-				rare = Generator.random( Generator.Category.WAND );
-				rare.level( 0 );
-				break;
-			case 1:
-				rare = Generator.random(Generator.Category.RING);
-				rare.level( 0 );
-				break;
-			case 2:
-				rare = Generator.random( Generator.Category.ARTIFACT );
-				break;
-			default:
-				rare = new Stylus();
+		if (Dungeon.depth == 6 || Dungeon.depth == 11 || Dungeon.depth == 16) {
+			switch (Random.Int(10)) {
+				case 0:
+					rare = Generator.random(Generator.Category.WAND);
+					rare.level(0);
+					break;
+				case 1:
+					rare = Generator.random(Generator.Category.RING);
+					rare.level(0);
+					break;
+				case 2:
+					rare = Generator.random(Generator.Category.ARTIFACT);
+					break;
+				default:
+					rare = new Stylus();
+			}
+			rare.cursed = false;
+			rare.cursedKnown = true;
+			itemsToSpawn.add(rare);
 		}
-		rare.cursed = false;
-		rare.cursedKnown = true;
-		itemsToSpawn.add( rare );
 
 		//hard limit is 63 items + 1 shopkeeper, as shops can't be bigger than 8x8=64 internally
 		if (itemsToSpawn.size() > 63)
@@ -284,44 +286,47 @@ public class ShopRoom extends SpecialRoom {
 	protected static Bag ChooseBag(Belongings pack){
 
 		//generate a hashmap of all valid bags.
-		HashMap<Bag, Integer> bags = new HashMap<>();
-		if (!Dungeon.LimitedDrops.VELVET_POUCH.dropped()) bags.put(new VelvetPouch(), 1);
-		if (!Dungeon.LimitedDrops.SCROLL_HOLDER.dropped()) bags.put(new ScrollHolder(), 0);
-		if (!Dungeon.LimitedDrops.POTION_BANDOLIER.dropped()) bags.put(new PotionBandolier(), 0);
-		if (!Dungeon.LimitedDrops.MAGICAL_HOLSTER.dropped()) bags.put(new MagicalHolster(), 0);
 
-		if (bags.isEmpty()) return null;
+			HashMap<Bag, Integer> bags = new HashMap<>();
+		if (Dungeon.depth == 6 || Dungeon.depth == 11 || Dungeon.depth == 16) {
+			if (!Dungeon.LimitedDrops.VELVET_POUCH.dropped()) bags.put(new VelvetPouch(), 1);
+			if (!Dungeon.LimitedDrops.SCROLL_HOLDER.dropped()) bags.put(new ScrollHolder(), 0);
+			if (!Dungeon.LimitedDrops.POTION_BANDOLIER.dropped()) bags.put(new PotionBandolier(), 0);
+			if (!Dungeon.LimitedDrops.MAGICAL_HOLSTER.dropped()) bags.put(new MagicalHolster(), 0);
 
-		//count up items in the main bag
-		for (Item item : pack.backpack.items) {
-			for (Bag bag : bags.keySet()){
-				if (bag.canHold(item)){
-					bags.put(bag, bags.get(bag)+1);
+			if (bags.isEmpty()) return null;
+		}
+			//count up items in the main bag
+			for (Item item : pack.backpack.items) {
+				for (Bag bag : bags.keySet()) {
+					if (bag.canHold(item)) {
+						bags.put(bag, bags.get(bag) + 1);
+					}
 				}
 			}
-		}
 
-		//find which bag will result in most inventory savings, drop that.
-		Bag bestBag = null;
-		for (Bag bag : bags.keySet()){
-			if (bestBag == null){
-				bestBag = bag;
-			} else if (bags.get(bag) > bags.get(bestBag)){
-				bestBag = bag;
+			//find which bag will result in most inventory savings, drop that.
+			Bag bestBag = null;
+			for (Bag bag : bags.keySet()) {
+				if (bestBag == null) {
+					bestBag = bag;
+				} else if (bags.get(bag) > bags.get(bestBag)) {
+					bestBag = bag;
+				}
 			}
-		}
 
-		if (bestBag instanceof VelvetPouch){
-			Dungeon.LimitedDrops.VELVET_POUCH.drop();
-		} else if (bestBag instanceof ScrollHolder){
-			Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
-		} else if (bestBag instanceof PotionBandolier){
-			Dungeon.LimitedDrops.POTION_BANDOLIER.drop();
-		} else if (bestBag instanceof MagicalHolster){
-			Dungeon.LimitedDrops.MAGICAL_HOLSTER.drop();
-		}
+			if (bestBag instanceof VelvetPouch) {
+				Dungeon.LimitedDrops.VELVET_POUCH.drop();
+			} else if (bestBag instanceof ScrollHolder) {
+				Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
+			} else if (bestBag instanceof PotionBandolier) {
+				Dungeon.LimitedDrops.POTION_BANDOLIER.drop();
+			} else if (bestBag instanceof MagicalHolster) {
+				Dungeon.LimitedDrops.MAGICAL_HOLSTER.drop();
+			}
 
-		return bestBag;
+
+			return bestBag;
 
 	}
 
