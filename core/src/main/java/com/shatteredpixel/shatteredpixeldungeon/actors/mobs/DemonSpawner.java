@@ -49,7 +49,7 @@ public class DemonSpawner extends Mob {
 		HP = HT = 120;
 		defenseSkill = 0;
 
-		EXP = 25;
+		EXP = 15;
 		maxLvl = 29;
 
 		state = PASSIVE;
@@ -103,9 +103,9 @@ public class DemonSpawner extends Mob {
 				spawn.pos = Random.element( candidates );
 				spawn.state = spawn.HUNTING;
 
+				GameScene.add( spawn, 1 );
 				Dungeon.level.occupyCell(spawn);
 
-				GameScene.add( spawn, 1 );
 				if (sprite.visible) {
 					Actor.addDelayed(new Pushing(spawn, pos, spawn.pos), -1);
 				}

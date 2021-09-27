@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
@@ -120,7 +121,9 @@ abstract public class MissileWeapon extends Weapon {
 				Item similar = Dungeon.hero.belongings.getSimilar(this);
 				if (similar != null){
 					detach(Dungeon.hero.belongings.backpack);
-					return similar.merge(this);
+					Item result = similar.merge(this);
+					updateQuickslot();
+					return result;
 				}
 				updateQuickslot();
 				return this;
@@ -233,7 +236,7 @@ abstract public class MissileWeapon extends Weapon {
 	
 	@Override
 	public float castDelay(Char user, int dst) {
-		return speedFactor( user );
+		return delayFactor( user );
 	}
 	
 	protected void rangedHit( Char enemy, int cell ){
@@ -255,8 +258,16 @@ abstract public class MissileWeapon extends Weapon {
 		parent = null;
 		super.onThrow(cell);
 	}
+
+	public float durabilityLeft(){
+		return durability;
+	}
+
+	public void repair( float amount ){
+		durability += amount;
+	}
 	
-	protected float durabilityPerUse(){
+	public float durabilityPerUse(){
 		float usages = baseUses * (float)(Math.pow(3, level()));
 
 		//+50%/75% durability
@@ -434,5 +445,22 @@ abstract public class MissileWeapon extends Weapon {
 		super.restoreFromBundle(bundle);
 		bundleRestoring = false;
 		durability = bundle.getInt(DURABILITY);
+	}
+
+	public static class PlaceHolder extends MissileWeapon {
+
+		{
+			image = ItemSpriteSheet.MISSILE_HOLDER;
+		}
+
+		@Override
+		public boolean isSimilar(Item item) {
+			return item instanceof MissileWeapon;
+		}
+
+		@Override
+		public String info() {
+			return "";
+		}
 	}
 }

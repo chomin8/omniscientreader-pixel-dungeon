@@ -181,18 +181,24 @@ abstract public class Weapon extends KindOfWeapon {
 	}
 	
 	@Override
-	public float speedFactor( Char owner ) {
+	public float delayFactor( Char owner ) {
+		return baseDelay(owner) * (1f/speedMultiplier(owner));
+	}
 
-		int encumbrance = 0;
+	protected float baseDelay( Char owner ){
+		float delay = augment.delayFactor(this.DLY);
 		if (owner instanceof Hero) {
-			encumbrance = STRReq() - ((Hero)owner).STR();
+			int encumbrance = STRReq() - ((Hero)owner).STR();
+			if (encumbrance > 0){
+				delay *= Math.pow( 1.2, encumbrance );
+			}
 		}
 
-		float DLY = augment.delayFactor(this.DLY);
+		return delay;
+	}
 
-		DLY *= RingOfFuror.attackDelayMultiplier(owner);
-
-		return (encumbrance > 0 ? (float)(DLY * Math.pow( 1.2, encumbrance )) : DLY);
+	protected float speedMultiplier(Char owner ){
+		return RingOfFuror.attackSpeedMultiplier(owner);
 	}
 
 	@Override
@@ -210,11 +216,7 @@ abstract public class Weapon extends KindOfWeapon {
 		lvl = Math.max(0, lvl);
 
 		//strength req decreases at +1,+3,+6,+10,etc.
-		int req = (8 + tier * 2) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
-
-		if (Dungeon.hero.pointsInTalent(Talent.STRONGMAN) >= 2) req--;
-
-		return req;
+		return (8 + tier * 2) - (int)(Math.sqrt(8 * lvl + 1) - 1)/2;
 	}
 
 	@Override
@@ -240,7 +242,7 @@ abstract public class Weapon extends KindOfWeapon {
 	public Item upgrade(boolean enchant ) {
 
 		if (enchant){
-			if (enchantment == null || hasCurseEnchant()){
+			if (enchantment == null){
 				enchant(Enchantment.random());
 			}
 		} else {
@@ -354,6 +356,14 @@ abstract public class Weapon extends KindOfWeapon {
 				if (rage != null) {
 					multi += (rage.rageAmount() / 6f) * ((Hero) attacker).pointsInTalent(Talent.ENRAGED_CATALYST);
 				}
+			}
+			if (attacker.buff(Talent.SpiritBladesTracker.class) != null
+					&& ((Hero)attacker).pointsInTalent(Talent.SPIRIT_BLADES) == 4){
+				multi += 0.1f;
+			}
+			if (attacker.buff(Talent.StrikingWaveTracker.class) != null
+					&& ((Hero)attacker).pointsInTalent(Talent.STRIKING_WAVE) == 4){
+				multi += 0.2f;
 			}
 			return multi;
 		}

@@ -223,8 +223,8 @@ public abstract class RegularLevel extends Level {
 				mobsToSpawn--;
 				mobs.add(mob);
 
-				//add a second mob to this room
-				if (mobsToSpawn > 0 && Random.Int(4) == 0){
+				//chance to add a second mob to this room, except on floor 1
+				if (Dungeon.depth > 1 && mobsToSpawn > 0 && Random.Int(4) == 0){
 					mob = createMob();
 
 					tries = 30;
@@ -436,20 +436,19 @@ public abstract class RegularLevel extends Level {
 		}
 
 		//guide pages
-		Collection<String> allPages = Document.ADVENTURERS_GUIDE.pages();
+		Collection<String> allPages = Document.ADVENTURERS_GUIDE.pageNames();
 		ArrayList<String> missingPages = new ArrayList<>();
 		for ( String page : allPages){
-			if (!Document.ADVENTURERS_GUIDE.hasPage(page)){
+			if (!Document.ADVENTURERS_GUIDE.isPageFound(page)){
 				missingPages.add(page);
 			}
 		}
 
-		//a total of 8 pages drop randomly, 2 pages are specially dropped
-		missingPages.remove(Document.GUIDE_INTRO_PAGE);
-		missingPages.remove(Document.GUIDE_SEARCH_PAGE);
+		//a total of 6 pages drop randomly, the rest are specially dropped or are given at the start
+		missingPages.remove(Document.GUIDE_SEARCHING);
 
-		//chance to find a page scales with pages missing and depth
-		float dropChance = (missingPages.size() + Dungeon.depth - 1) / (float)(allPages.size() - 2);
+		//chance to find a page is 0/25/50/75/100% for floors 1/2/3/4/5+
+		float dropChance = 0.25f*(Dungeon.depth-1);
 		if (!missingPages.isEmpty() && Random.Float() < dropChance){
 			GuidePage p = new GuidePage();
 			p.page(missingPages.get(0));

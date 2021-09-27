@@ -85,11 +85,11 @@ public class Swarm extends Mob {
 
 		if (HP >= damage + 2) {
 			ArrayList<Integer> candidates = new ArrayList<>();
-			boolean[] solid = Dungeon.level.solid;
 			
 			int[] neighbours = {pos + 1, pos - 1, pos + Dungeon.level.width(), pos - Dungeon.level.width()};
 			for (int n : neighbours) {
-				if (!solid[n] && Actor.findChar( n ) == null) {
+				if (!Dungeon.level.solid[n] && Actor.findChar( n ) == null
+						&& (!properties().contains(Property.LARGE) || Dungeon.level.openSpace[n])) {
 					candidates.add( n );
 				}
 			}
@@ -100,11 +100,11 @@ public class Swarm extends Mob {
 				clone.HP = (HP - damage) / 2;
 				clone.pos = Random.element( candidates );
 				clone.state = clone.HUNTING;
-				
-				Dungeon.level.occupyCell(clone);
-				
+
 				GameScene.add( clone, SPLIT_DELAY );
 				Actor.addDelayed( new Pushing( clone, pos, clone.pos ), -1 );
+
+				Dungeon.level.occupyCell(clone);
 				
 				HP -= clone.HP;
 			}

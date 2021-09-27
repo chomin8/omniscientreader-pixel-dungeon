@@ -32,7 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTerrainTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuickBag;
 import com.watabou.input.GameAction;
 import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
@@ -143,7 +143,7 @@ public class Toolbar extends Component {
 
 			@Override
 			protected void onClick() {
-				GameScene.show(new WndBag(Dungeon.hero.belongings.backpack, null, WndBag.Mode.ALL, null));
+				GameScene.show(new WndBag(Dungeon.hero.belongings.backpack));
 			}
 			
 			@Override
@@ -153,8 +153,7 @@ public class Toolbar extends Component {
 			
 			@Override
 			protected boolean onLongClick() {
-				WndJournal.last_index = 3; //catalog page
-				GameScene.show(new WndJournal());
+				GameScene.show(new WndQuickBag(null));
 				return true;
 			}
 
@@ -425,11 +424,11 @@ public class Toolbar extends Component {
 			Point screen = Camera.main.cameraToScreen(tile.x, tile.y);
 			PointF start = camera().screenToCamera(screen.x, screen.y);
 			
-			x = this.startX = start.x - ItemSprite.SIZE / 2;
-			y = this.startY = start.y - ItemSprite.SIZE / 2;
+			x = this.startX = start.x - width() / 2;
+			y = this.startY = start.y - width() / 2;
 			
-			this.endX = endX - ItemSprite.SIZE / 2;
-			this.endY = endY - ItemSprite.SIZE / 2;
+			this.endX = endX - width() / 2;
+			this.endY = endY - width() / 2;
 			left = DURATION;
 			
 			scale.set( startScale = Camera.main.zoom / camera().zoom );
